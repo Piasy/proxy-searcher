@@ -1,4 +1,5 @@
-testdata/*
+service/testdata/*
+service/*.pyc
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
