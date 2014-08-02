@@ -81,11 +81,11 @@ def get_proxies():
             ava_pro.append(one)
         #else:
         #    print "none ava: " + ip + ":" + port
-    fpro = open('service/proxies.json', 'w')
+    fpro = open('proxies.json', 'w')
     fpro.write(json.dumps(ava_pro))
     fpro.close()
 
-    flog = open('service/log.json', 'w')
+    flog = open('log.json', 'w')
     nlog = {}
     nlog["lastupdate"] = time.time()
     flog.write(json.dumps(nlog))
