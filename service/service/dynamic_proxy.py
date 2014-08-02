@@ -1,6 +1,6 @@
 import sgmllib
 import urllib2
-import re
+import re, json, time
 
 class MyHTMLParser(sgmllib.SGMLParser):
     field = "NONE"
@@ -52,7 +52,6 @@ def get_self_ip():
         return "0.0.0.0"
 
 def available(ip, port):
-    return True
     org = get_self_ip()
     proxy = urllib2.ProxyHandler({'http':'http://' + ip + ':' + port + '/'})
     opener = urllib2.build_opener(proxy)
@@ -82,7 +81,15 @@ def get_proxies():
             ava_pro.append(one)
         #else:
         #    print "none ava: " + ip + ":" + port
-    return ava_pro
+    fpro = open('service/proxies.json', 'w')
+    fpro.write(json.dumps(ava_pro))
+    fpro.close()
+
+    flog = open('service/log.json', 'w')
+    nlog = {}
+    nlog["lastupdate"] = time.time()
+    flog.write(json.dumps(nlog))
+    flog.close()
 
 if __name__ == "__main__":
     print get_proxies()
