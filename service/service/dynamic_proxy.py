@@ -32,8 +32,11 @@ def get_proxies():
     pros = []
     ava_pro = []
     #itmop
-    html = urllib2.urlopen('http://www.itmop.com/proxy/').read()
-    pros += parsers.parse_itmop(html)
+    try:
+        html = urllib2.urlopen('http://www.itmop.com/proxy/').read()
+        pros += parsers.parse_itmop(html)
+    except Exception,ex:
+        print Exception, ":", ex
 
     """
     #proxylists
@@ -45,17 +48,23 @@ def get_proxies():
     """
 
     #kunpeng
-    html = urllib2.urlopen('http://www.site-digger.com/html/articles/20110516/proxieslist.html').read()
-    pros += parsers.parse_kunpeng(html)
+    try:
+        html = urllib2.urlopen('http://www.site-digger.com/html/articles/20110516/proxieslist.html').read()
+        pros += parsers.parse_kunpeng(html)
+    except Exception,ex:
+        print Exception, ":", ex
 
     #comru 3464
     html = urllib2.urlopen('http://www.3464.com/data/Proxy/http/').read()
     pros += parsers.parse_comru_3464(html)
     for i in range(1, 9):
-        url = 'http://proxy.com.ru/list_' + str(i) + '.html'
-        html = urllib2.urlopen(url).read()
-        pros += parsers.parse_comru_3464(html)
-        time.sleep(2)
+        try:
+            url = 'http://proxy.com.ru/list_' + str(i) + '.html'
+            html = urllib2.urlopen(url).read()
+            pros += parsers.parse_comru_3464(html)
+            time.sleep(2)
+        except Exception,ex:
+            print Exception, ":", ex
 
     urllib2.socket.setdefaulttimeout(20)
     for ip, port in pros:
