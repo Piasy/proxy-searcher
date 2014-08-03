@@ -4,12 +4,13 @@ import service.dynamic_proxy
 import json, time, thread
 
 def get_proxy():
-    flog = open('service/service/log.json', 'r')
+    flog = open('service/log.json', 'r')
     log = json.loads(flog.read())
     flog.close()
-    if (not log) or time.time() - log["lastupdate"] > 3600:
+    if (not log) or (log["running"] == 0 and\
+                     time.time() - log["lastupdate"] > 3600):
         thread.start_new_thread(service.dynamic_proxy.get_proxies, ())
-    fpro = open('service/service/proxies.json', 'r')
+    fpro = open('service/proxies.json', 'r')
     ret = fpro.read()
     fpro.close()
     return ret

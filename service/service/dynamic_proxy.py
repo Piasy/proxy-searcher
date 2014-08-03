@@ -25,10 +25,19 @@ def available(ip, port):
         if res:
             changed = res[0]
     except Exception,ex:
+        print Exception, ":", ex
         changed = org
     return changed != org
 
 def get_proxies():
+    print 'start getting!'
+    flog = open('service/log.json', 'w')
+    nlog = {}
+    nlog["running"] = 1
+    nlog["lastupdate"] = time.time()
+    flog.write(json.dumps(nlog))
+    flog.close()
+    
     pros = []
     ava_pro = []
     #itmop
@@ -77,12 +86,13 @@ def get_proxies():
         #else:
         #    print "none ava: " + ip + ":" + port
     print len(ava_pro)
-    fpro = open('service/service/proxies.json', 'w')
+    fpro = open('service/proxies.json', 'w')
     fpro.write(json.dumps(ava_pro))
     fpro.close()
 
-    flog = open('service/service/log.json', 'w')
+    flog = open('service/log.json', 'w')
     nlog = {}
+    nlog["running"] = 0
     nlog["lastupdate"] = time.time()
     flog.write(json.dumps(nlog))
     flog.close()
