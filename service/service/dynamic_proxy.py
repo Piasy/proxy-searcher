@@ -1,45 +1,7 @@
-import sgmllib
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
 import urllib2
-import re, json, time
-
-class MyHTMLParser(sgmllib.SGMLParser):
-    field = "NONE"
-    wanted = False
-    proxies = []
-
-    def handle_data(self, data):
-        #handle data in the current field
-        if self.field == "P" and self.wanted:
-            p1 = re.compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} \d{1,5}')
-            p2 = re.compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}')
-            res1 = re.findall(p1, data)
-            res2 = re.findall(p2, data)
-            if res1:
-                ss = res1[0].split(' ')
-                self.proxies.append((ss[0], ss[1]))
-            elif res2:
-                ss = res2[0].split(':')
-                self.proxies.append((ss[0], ss[1]))
-
-    def start_div(self, attrs):
-        #get in the td field
-        self.field = "DIV"
-        for name, value in attrs:
-            if name == "id" and value == "NEW_INFO_LIST":
-                self.wanted = True
-                
-    def end_div(self):
-        #get out the td field
-        self.field = "NONE"
-        self.wanted = False
-
-    def start_p(self, attrs):
-        #
-        self.field = "P"
-        
-    def end_p(self):
-        #
-        self.field = "NONE"
+import re, json, time, parsers
 
 def get_self_ip():
     try:
@@ -67,25 +29,50 @@ def available(ip, port):
     return changed != org
 
 def get_proxies():
+    pros = []
     ava_pro = []
-    parser = MyHTMLParser()
-    html = urllib2.urlopen('http://www.itmop.com/proxy/').read() #get html
-    MyHTMLParser().feed(html)
+    #itmop
+    html = urllib2.urlopen('http://www.itmop.com/proxy/').read()
+    pros += parsers.parse_itmop(html)
+
+    """
+    #proxylists
+    for i in range(1, 11):
+        url = 'http://www.freeproxylists.net/zh/?pr=HTTP&u=80&page=' + str(i)
+        html = urllib2.urlopen(url).read()
+        pros += parsers.parse_itmop(html)
+        time.sleep(2)
+    """
+
+    #kunpeng
+    html = urllib2.urlopen('http://www.site-digger.com/html/articles/20110516/proxieslist.html').read()
+    pros += parsers.parse_kunpeng(html)
+
+    #comru 3464
+    html = urllib2.urlopen('http://www.3464.com/data/Proxy/http/').read()
+    pros += parsers.parse_comru_3464(html)
+    for i in range(1, 9):
+        url = 'http://proxy.com.ru/list_' + str(i) + '.html'
+        html = urllib2.urlopen(url).read()
+        pros += parsers.parse_comru_3464(html)
+        time.sleep(2)
+
     urllib2.socket.setdefaulttimeout(20)
-    for ip, port in parser.proxies:
+    for ip, port in pros:
         if available(ip, port):
-            #print "ava: " + ip + ":" + port
+            print "ava: " + ip + ":" + port
             one = {}
             one['ip'] = ip
             one['port'] = port
             ava_pro.append(one)
         #else:
         #    print "none ava: " + ip + ":" + port
-    fpro = open('service/service/proxies.json', 'w')
+    print len(ava_pro)
+    fpro = open('proxies.json', 'w')
     fpro.write(json.dumps(ava_pro))
     fpro.close()
 
-    flog = open('service/service/log.json', 'w')
+    flog = open('log.json', 'w')
     nlog = {}
     nlog["lastupdate"] = time.time()
     flog.write(json.dumps(nlog))
